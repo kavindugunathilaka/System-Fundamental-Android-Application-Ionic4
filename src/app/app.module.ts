@@ -14,6 +14,7 @@ import { AngularFirestore } from 'angularfire2/firestore';
 import { AngularFireStorage, AngularFireStorageModule } from 'angularfire2/storage';
 import { environment } from '../environments/environment';
 import { GoogleMaps } from '@ionic-native/google-maps';
+import { LocationPopoverPageModule } from './pages/location-popover/location-popover.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,7 +23,8 @@ import { GoogleMaps } from '@ionic-native/google-maps';
     BrowserModule,
     IonicModule.forRoot(),
      AppRoutingModule,
-     AngularFireModule.initializeApp(environment.firebase)
+     AngularFireModule.initializeApp(environment.firebase),
+     LocationPopoverPageModule
     ],
   providers: [
     StatusBar,

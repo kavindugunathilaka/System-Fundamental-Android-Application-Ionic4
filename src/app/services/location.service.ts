@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreModule } from 'angularfire2/firestore';
 
 export interface Locate {
-
+  id: any;
   glatitude: number;
   glongitude: number;
   imgsrc: string;
@@ -22,17 +22,17 @@ export class LocationService {
   private locates: Observable<Locate[]>;
 
   constructor( db: AngularFirestore) {
-    this.locateCollection = db.collection<Locate>('locates');
 
+    this.locateCollection = db.collection<Locate>('locates');
     this.locates = this.locateCollection.snapshotChanges()
     .pipe(map(actions => {
       return actions.map(a => {
         const gdata = a.payload.doc.data();
-        // const 
         const id = a.payload.doc.id;
         return { id, ...gdata };
       });
     }));
+
   }
 
   getLocates()  {

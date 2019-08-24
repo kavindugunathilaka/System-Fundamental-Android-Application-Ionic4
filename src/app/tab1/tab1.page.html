@@ -3,20 +3,25 @@
 </ion-header>
 
 <ion-content>
-    <!-- <ion-card class="welcome-card">
-      <img src="/assets/shapes.svg" alt="" />
-      <ion-card-header>
-        <ion-card-subtitle>Get Started</ion-card-subtitle>
-        <ion-card-title>Welcome to Ionic</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>Now that your app has been created, you'll want to start building out features and components. Check out some of the resources below for next steps.</p>
-      </ion-card-content>
-    </ion-card> -->
+    
+    <!-- Refresher component -->
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content color="primary"
+      refreshingSpinner="lines"
+      ></ion-refresher-content>
+    </ion-refresher>
 
+    <!-- Division to report no data -->
+    <div *ngIf="noDataRecord">
+      <h3 center >No trash location reported</h3>
+      <ion-list>
+        
+      </ion-list>
+    </div>
+    
+    <!--  Google maps -->
     <div id='map_canvas'>
 
     </div>
 
-   
 </ion-content>

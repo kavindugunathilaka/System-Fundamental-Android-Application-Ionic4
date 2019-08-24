@@ -5,7 +5,8 @@ const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
-  }
+  },
+  { path: 'location-popover', loadChildren: './pages/location-popover/location-popover.module#LocationPopoverPageModule' }
 ];
 @NgModule({
   imports: [

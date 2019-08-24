@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {  ToastController,
+import {
+  ToastController,
   IonSpinner,
   Platform,
-  LoadingController } from '@ionic/angular';
+  LoadingController,
+  PopoverController } from '@ionic/angular';
 import {
   GoogleMaps,
   GoogleMap,
@@ -18,6 +20,7 @@ import {
   BaseArrayClass } from '@ionic-native/google-maps';
 
 import { Locate, LocationService } from '../services/location.service';
+import { LocationPopoverPage } from '../pages/location-popover/location-popover.page';
 
 @Component({
   selector: 'app-tab1',
@@ -31,8 +34,10 @@ export class Tab1Page implements OnInit {
   locateDatas: Locate[];
   dubList = [];
   points = [];
+  noDataRecord = false;
 
   constructor(
+    private popoverCtrl: PopoverController,
     private locateService: LocationService,
     public loadingCtrl: LoadingController,
     public toastCtrl: ToastController,
@@ -43,50 +48,57 @@ export class Tab1Page implements OnInit {
   async ngOnInit() {
     this.loading = await this.loadingCtrl.create({
       message: 'Loading..',
-      spinner: "lines"
+      spinner: 'lines'
     });
     await this.loading.present();
     await this.locateService.getLocates().subscribe( rslt => {
-      for (let locate of rslt) {
-        let latValue = locate.glatitude;
-        let lngValue = locate.glongitude;
-        let descValue = locate.description;
+      if (rslt.length <= 0 ) { this.noDataRecord = true; }
+
+      for (const locate of rslt) {
+        const latValue = locate.glatitude;
+        const lngValue = locate.glongitude;
+        const descValue = locate.description;
+        const imgs = locate.imgsrc;
+        const locatId = locate.id;
         this.points.push(
           {
-            position: {lat: latValue, lng: lngValue},
-            title: descValue,
-            iconData: "blue"
+              position: {lat: latValue, lng: lngValue},
+              // title: locatId,
+              title: {image: imgs, id: locatId } ,
+              ImgValue: imgs,
+              iconData: 'blue',
+              IdValue: locatId
           }
         );
       }
-       this.platform.ready();
-       this.loadMap();
-  
+      this.platform.ready();
+      this.loadMap();
+      this.loading.dismiss();
     });
   }
 
-  getLocations() {
-    this.locateService.getLocates().subscribe( rslt => {
+  // getLocations() {
+  //   this.locateService.getLocates().subscribe( rslt => {
 
-      for (let locate of rslt) {
-        let latValue = locate.glatitude;
-        let lngValue = locate.glongitude;
-        let descValue = locate.description;
-        this.points.push(
-          {
-            position: {lat: latValue, lng: lngValue},
-            title: descValue,
-            iconData: "blue"
-          }
-        );
-      }
-    });
-  }
+  //     for (let locate of rslt) {
+  //       let latValue = locate.glatitude;
+  //       let lngValue = locate.glongitude;
+  //       let descValue = locate.description;
+  //       this.points.push(
+  //         {
+  //           position: {lat: latValue, lng: lngValue},
+  //           title: descValue,
+  //           iconData: "blue"
+  //         }
+  //       );
+  //     }
+  //   });
+  // }
 
   loadMap() {
-    let POINTS: BaseArrayClass<any> = new BaseArrayClass<any>(this.points);
+    const POINTS: BaseArrayClass<any> = new BaseArrayClass<any>(this.points);
 
-    let bounds: ILatLng[] = POINTS.map((data: any, idx: number) => {
+    const bounds: ILatLng[] = POINTS.map((data: any, idx: number) => {
       console.log(data);
       return data.position;
     });
@@ -101,18 +113,38 @@ export class Tab1Page implements OnInit {
 
     POINTS.forEach((data: any) => {
       data.disableAutoPan = true;
-      let marker: Marker = this.map.addMarkerSync(data);
-      marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe(this.onMarkerClick);
-      marker.on(GoogleMapsEvent.INFO_CLICK).subscribe(this.onMarkerClick);
+      const marker: Marker = this.map.addMarkerSync(data);
+      try {
+        marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe( () => {
+          this.loading.present();
+          const lImg = marker.get('ImgValue');
+          const lId = marker.get('IdValue');
+          this.popOverTest(lImg, lId);
+        });
+      } catch (error) {
+        alert('Error : ' + error.message);
+      }
     });
 
   }
 
-  onMarkerClick(params: any) {
-    let marker: Marker = <Marker>params[1];
-    let iconData: any = marker.get('iconData');
-    marker.setIcon(iconData);
+  async popOverTest( img: string, id: string ) {
+    const popover = await this.popoverCtrl.create({
+      component: LocationPopoverPage,
+      componentProps: {
+        location_img: img,
+        location_id : id
+      }
+    });
+    this.loading.dismiss();
+    popover.present();
   }
-  
+
+  doRefresh( event ) {
+    setTimeout( () => {
+      window.location.reload();
+      event.target.complete();
+    }, 1000);
+  }
 
 }
