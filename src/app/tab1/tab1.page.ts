@@ -237,12 +237,12 @@ export class Tab1Page implements OnInit {
 
   }
 
-  stopTracking() {
+  async stopTracking() {
     // this.trashLocationSub.unsubscribe();
     this.mark.remove();
     this.isTracking = false;
-    this.updateStatus(false);
-    // this.locationSubscription.unsubscribe();
+    await this.updateStatus(false);
+    await this.locationSubscription.unsubscribe();
   }
 
 
