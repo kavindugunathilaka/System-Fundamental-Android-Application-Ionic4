@@ -37,18 +37,19 @@ export class LocationPopoverPage implements OnInit {
   }
 
   cleanTrash() {
-    this.firebaseStorage.storage.refFromURL(this.locationImg).delete()
+    this.locateService.removeLocate(this.locationId)
     .then( () => {
-      this.locateService.removeLocate(this.locationId);
-      alert('Recorded successfully');
+      this.firebaseStorage.storage.refFromURL(this.locationImg).delete();
       this.closePopOver();
-
     })
-    .catch( err => {
-      alert('Failed to record');
+    .catch( (err) => {
+      alert('Failed to Delete ');
       this.closePopOver();
     });
+
   }
+
+  
 
   closePopOver() {
     this.popoverCtrl.dismiss();

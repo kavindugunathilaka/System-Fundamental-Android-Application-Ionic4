@@ -18,6 +18,7 @@ import {
   Environment,
   ILatLng,
   BaseArrayClass } from '@ionic-native/google-maps';
+// import {} from 
 
 import { Locate, LocationService } from '../services/location.service';
 import { LocationPopoverPage } from '../pages/location-popover/location-popover.page';
@@ -35,6 +36,7 @@ export class Tab1Page implements OnInit {
   dubList = [];
   points = [];
   noDataRecord = false;
+  isTracking: Boolean = false;
 
   constructor(
     private popoverCtrl: PopoverController,
@@ -60,6 +62,7 @@ export class Tab1Page implements OnInit {
         const descValue = locate.description;
         const imgs = locate.imgsrc;
         const locatId = locate.id;
+        let num = 0;
         this.points.push(
           {
               position: {lat: latValue, lng: lngValue},
@@ -67,7 +70,8 @@ export class Tab1Page implements OnInit {
               title: {image: imgs, id: locatId } ,
               ImgValue: imgs,
               iconData: 'blue',
-              IdValue: locatId
+              IdValue: locatId,
+              MarkValue: num++
           }
         );
       }
@@ -75,25 +79,16 @@ export class Tab1Page implements OnInit {
       this.loadMap();
       this.loading.dismiss();
     });
+    
+
+  }
+  startTracking() {
+    this.isTracking = true;
   }
 
-  // getLocations() {
-  //   this.locateService.getLocates().subscribe( rslt => {
-
-  //     for (let locate of rslt) {
-  //       let latValue = locate.glatitude;
-  //       let lngValue = locate.glongitude;
-  //       let descValue = locate.description;
-  //       this.points.push(
-  //         {
-  //           position: {lat: latValue, lng: lngValue},
-  //           title: descValue,
-  //           iconData: "blue"
-  //         }
-  //       );
-  //     }
-  //   });
-  // }
+  stopTracking() {
+    this.isTracking = false;
+  }
 
   loadMap() {
     const POINTS: BaseArrayClass<any> = new BaseArrayClass<any>(this.points);
@@ -105,7 +100,8 @@ export class Tab1Page implements OnInit {
 
     this.map = GoogleMaps.create('map_canvas', {
       camera: {
-        target: bounds
+        target: bounds,
+        zoom: 10
       }
     });
 
@@ -119,7 +115,8 @@ export class Tab1Page implements OnInit {
           this.loading.present();
           const lImg = marker.get('ImgValue');
           const lId = marker.get('IdValue');
-          this.popOverTest(lImg, lId);
+          const lNum = marker.get('MarkValue');
+          this.popOverTest(lImg, lId, lNum);
         });
       } catch (error) {
         alert('Error : ' + error.message);
@@ -128,12 +125,13 @@ export class Tab1Page implements OnInit {
 
   }
 
-  async popOverTest( img: string, id: string ) {
+  async popOverTest( img: string, id: string, num ) {
     const popover = await this.popoverCtrl.create({
       component: LocationPopoverPage,
       componentProps: {
         location_img: img,
-        location_id : id
+        location_id : id,
+        locationMark_num: num
       }
     });
     this.loading.dismiss();

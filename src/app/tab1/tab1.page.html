@@ -23,5 +23,14 @@
     <div id='map_canvas'>
 
     </div>
-
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isTracking">
+      <ion-fab-button (click)="startTracking()" >
+        <ion-icon name="bicycle"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="isTracking">
+      <ion-fab-button (click)="stopTracking()" >
+        <ion-icon name="hand"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
 </ion-content>
