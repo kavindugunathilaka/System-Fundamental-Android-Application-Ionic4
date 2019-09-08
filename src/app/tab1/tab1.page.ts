@@ -215,7 +215,7 @@ export class Tab1Page implements OnInit {
         this.locationLng = data.coords.longitude;
         this.locationTimeStamp = data.timestamp;
         this.updateCurrentPosition(this.locationLat, this.locationLng, this.locationTimeStamp);
-        this.addLocation(this.locationLat, this.locationLng, this.locationTimeStamp);
+        // this.addLocation(this.locationLat, this.locationLng, this.locationTimeStamp);
         this.mark = this.map.addMarkerSync({
           position : {
           lat: this.locationLat,
