@@ -9,8 +9,11 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+
 import { AngularFireModule } from 'angularfire2';
 import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireStorage, AngularFireStorageModule } from 'angularfire2/storage';
 import { environment } from '../environments/environment';
 import { GoogleMaps } from '@ionic-native/google-maps';
@@ -29,6 +32,8 @@ import { LocationPopoverPageModule } from './pages/location-popover/location-pop
   providers: [
     StatusBar,
     SplashScreen,
+    Geolocation,
+    AngularFireAuth,
     AngularFirestore,
     AngularFireStorage,
     GoogleMaps,

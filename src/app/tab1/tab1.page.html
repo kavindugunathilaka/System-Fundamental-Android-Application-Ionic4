@@ -10,27 +10,33 @@
       refreshingSpinner="lines"
       ></ion-refresher-content>
     </ion-refresher>
-
+    <!-- size="large" -->
     <!-- Division to report no data -->
     <div *ngIf="noDataRecord">
-      <h3 center >No trash location reported</h3>
-      <ion-list>
-        
-      </ion-list>
+      <ion-card padding color="danger">
+          <!-- &nbsp;&nbsp;&nbsp; -->
+          <ion-icon size="large" name="warning" style="margin-left: 45%;" ></ion-icon>
+          <br>
+      <ion-card-subtitle style="margin-left: 15%;">
+          No Trash Location Reported
+          </ion-card-subtitle>
+      </ion-card>
     </div>
     
     <!--  Google maps -->
-    <div id='map_canvas'>
+    <!-- *ngIf="!noDataRecord" -->
+    <div id='map_canvas' >
 
     </div>
     <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isTracking">
-      <ion-fab-button (click)="startTracking()" >
-        <ion-icon name="bicycle"></ion-icon>
+      <ion-fab-button color="success" (click)="startTracking()" >
+        <ion-icon name="logo-model-s"></ion-icon>
       </ion-fab-button>
     </ion-fab>
     <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="isTracking">
-      <ion-fab-button (click)="stopTracking()" >
+      <ion-fab-button color="danger" (click)="stopTracking()" >
         <ion-icon name="hand"></ion-icon>
       </ion-fab-button>
     </ion-fab>
+
 </ion-content>
