@@ -22,6 +22,7 @@ import {
   ILatLng,
   BaseArrayClass } from '@ionic-native/google-maps';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Network } from '@ionic-native/network/ngx';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 
@@ -50,12 +51,14 @@ export class Tab1Page implements OnInit {
   currentPositionCollection: AngularFirestoreCollection<any>;
   locationSubscription: Subscription;
   trashLocationSub: Subscription;
+  networkSubscription: Subscription;
   locationLat = null;
   locationLng: any = 0;
   locationTimeStamp = null;
   trashPositionArray = [];
 
   constructor(
+    private network: Network,
     private popoverCtrl: PopoverController,
     private locateService: LocationService,
     public loadingCtrl: LoadingController,
@@ -69,11 +72,10 @@ export class Tab1Page implements OnInit {
 
   }
 
-  anomLogin() {
-    this.fireAuth.auth.signInAnonymously().then( user => {
+  async anomLogin() {
+    await this.fireAuth.auth.signInAnonymously().then( user => {
       this.user = user.user;
       this.userID = user.user.uid;
-
       this.positionCollection = this.fireStore.collection(
         `driverPostions/${this.userID}/track`,
         ref => ref.orderBy('timestamp')
@@ -105,13 +107,21 @@ export class Tab1Page implements OnInit {
       //   driverID: this.userID,
       //   status: 'offline'
       // });
-    } );
+      alert('Signed in successfully');
+    } ).catch((err) => {
+      alert('Unable to sign in' + err.message);
+    });
+
+  }
+
+  ionViewWillUnload() {
+    this.updateStatus(false);
   }
 
   ionViewDidLeave() {
     // window.location.reload();
     // this.trashLocationSub.unsubscribe();
-    this.updateStatus(false);
+    // this.updateStatus(false);
   }
 
    async loadTrashIntoPoints() {

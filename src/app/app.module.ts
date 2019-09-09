@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Network } from '@ionic-native/network/ngx';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFirestore } from 'angularfire2/firestore';
@@ -33,6 +34,7 @@ import { LocationPopoverPageModule } from './pages/location-popover/location-pop
     StatusBar,
     SplashScreen,
     Geolocation,
+    Network,
     AngularFireAuth,
     AngularFirestore,
     AngularFireStorage,
