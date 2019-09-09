@@ -90,13 +90,21 @@ export class Tab1Page implements OnInit {
         `driverPostions/${this.userID}/current`,
         ref => ref.orderBy('timestamp')
       );
-      this.currentPositionCollection.doc('currentLocate').set({
+      this.fireStore.collection(`driverPostions/${this.userID}/current`).doc('currentLocate')
+      .set({
         lng: 0,
         lat: 0,
         timestamp: 0,
         driverID: this.userID,
         status: 'offline'
       });
+      // this.currentPositionCollection.doc('currentLocate').set({
+      //   lng: 0,
+      //   lat: 0,
+      //   timestamp: 0,
+      //   driverID: this.userID,
+      //   status: 'offline'
+      // });
     } );
   }
 
@@ -151,7 +159,7 @@ export class Tab1Page implements OnInit {
 
     await this.anomLogin();
     await this.platform.ready();
-    // await this.loading.present();
+    await this.loading.present();
     await this.loadTrashIntoPoints();
     // await this.testLoadMap();
     
