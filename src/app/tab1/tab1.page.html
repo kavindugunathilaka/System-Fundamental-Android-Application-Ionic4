@@ -3,7 +3,15 @@
 </ion-header>
 
 <ion-content>
-    
+  <ion-fab vertical="top" horizontal="center" slot="fixed">
+
+    <ion-card padding color="light">
+      <ion-card-subtitle>
+          <ion-icon  name="share" ></ion-icon>&nbsp;
+        <b>Geo Center : {{ mapCnLat }} </b>
+      </ion-card-subtitle>
+    </ion-card>
+  </ion-fab>
     <!-- Refresher component -->
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content color="primary"

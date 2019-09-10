@@ -76,23 +76,40 @@ export class Tab1Page implements OnInit {
     await this.fireAuth.auth.signInAnonymously().then( user => {
       this.user = user.user;
       this.userID = user.user.uid;
-      this.positionCollection = this.fireStore.collection(
-        `driverPostions/${this.userID}/track`,
-        ref => ref.orderBy('timestamp')
-      );
-
-      this.userCollection = this.fireStore.collection(
-        `users`);
+      // try {
+        this.positionCollection = this.fireStore.collection(
+          `driverPostions/${this.userID}/track`,
+          ref => ref.orderBy('timestamp')
+        );
+      // } catch (error) {
+      //   alert('poitionCollection ERRoR : ' + error.message);
+      // }
+      
+      // try {
+        this.userCollection = this.fireStore.collection(
+          `users`);
+      // } catch (error) {
+      //   alert('userCollection ERRoR : ' + error.message);
+      // }
+      
+      // this.userCollection.
       this.userCollection.doc(`${this.userID}`).set({
         userID: this.userID,
         status: 'offline',
         st : true
       });
-      this.currentPositionCollection = this.fireStore.collection(
-        `driverPostions/${this.userID}/current`,
-        ref => ref.orderBy('timestamp')
-      );
-      this.fireStore.collection(`driverPostions/${this.userID}/current`).doc('currentLocate')
+
+      // try {
+        this.currentPositionCollection = this.fireStore.collection(
+          `driverPostions/${this.userID}/current`,
+          ref => ref.orderBy('timestamp')
+        );  
+      // } catch (error) {
+      //   alert('currentPoitionCollection ERRoR : ' + error.message);
+      // }
+      
+      // try {
+        this.fireStore.collection(`driverPostions/${this.userID}/current`).doc('currentLocate')
       .set({
         lng: 0,
         lat: 0,
@@ -100,6 +117,10 @@ export class Tab1Page implements OnInit {
         driverID: this.userID,
         status: 'offline'
       });
+      // } catch (error) {
+      //   alert('Add offline friverPosition ERRoR : ' + error.message);
+      // }
+      
       // this.currentPositionCollection.doc('currentLocate').set({
       //   lng: 0,
       //   lat: 0,
@@ -107,9 +128,10 @@ export class Tab1Page implements OnInit {
       //   driverID: this.userID,
       //   status: 'offline'
       // });
-      alert('Signed in successfully');
+      // alert('Signed in successfully');
     } ).catch((err) => {
-      alert('Unable to sign in' + err.message);
+      alert('Unable to sign in & userCollection set : ' + err.message);
+      // window.close();
     });
 
   }
@@ -123,6 +145,8 @@ export class Tab1Page implements OnInit {
     // this.trashLocationSub.unsubscribe();
     // this.updateStatus(false);
   }
+
+  mapCnLat: any;
 
    async loadTrashIntoPoints() {
     this.trashLocationSub = await this.locateService.getLocates().subscribe( rslt => {
@@ -156,6 +180,7 @@ export class Tab1Page implements OnInit {
       }
       this.platform.ready();
       this.loadMap();
+      this.mapCnLat = this.map.getCameraPosition().target;
       this.loading.dismiss();
     });
   }
@@ -212,7 +237,6 @@ export class Tab1Page implements OnInit {
   markerArrayStatus: String = 'None';
   mark: Marker = null;
   async startTracking() {
-    // this.firstLoad += 1;
     this.isTracking = true;
     this.updateStatus(true);
     this.locationSubscription = this.geolocation.watchPosition({
@@ -342,6 +366,8 @@ export class Tab1Page implements OnInit {
       }
     });
 
+    this.map.setTrafficEnabled(true);
+
     this.loading.dismiss();
 
     POINTS.forEach((data: any) => {
@@ -353,7 +379,7 @@ export class Tab1Page implements OnInit {
           const lImg = marker.get('ImgValue');
           const lId = marker.get('IdValue');
           const lNum = marker.get('MarkValue');
-          this.popOverTest(lImg, lId, lNum);
+          this.popOverTest(lImg, lId, lNum, this.userID);
         });
       } catch (error) {
         alert('Error : ' + error.message);
@@ -362,17 +388,24 @@ export class Tab1Page implements OnInit {
 
   }
 
-  async popOverTest( img: string, id: string, num ) {
-    const popover = await this.popoverCtrl.create({
+  async popOverTest( img: string, id: string, num, user ) {
+    if (this.isTracking){
+      this.loading.present();
+      const popover = await this.popoverCtrl.create({
       component: LocationPopoverPage,
       componentProps: {
         location_img: img,
         location_id : id,
-        locationMark_num: num
-      }
-    });
-    this.loading.dismiss();
-    popover.present();
+        locationMark_num: num,
+        userId: user
+        }
+      });
+      this.loading.dismiss();
+      popover.present();
+    } else {
+      alert("Please Enable Tracking");
+    }
+    
   }
 
   doRefresh( event ) {
