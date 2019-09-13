@@ -20,15 +20,14 @@ import {
   Marker,
   Environment,
   ILatLng,
-  BaseArrayClass } from '@ionic-native/google-maps';
+  BaseArrayClass, 
+  LatLng} from '@ionic-native/google-maps';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
-
 import { Locate, LocationService } from '../services/location.service';
 import { LocationPopoverPage } from '../pages/location-popover/location-popover.page';
-
 
 @Component({
   selector: 'app-tab1',
@@ -37,6 +36,7 @@ import { LocationPopoverPage } from '../pages/location-popover/location-popover.
 })
 export class Tab1Page implements OnInit {
 
+  date: Date = new Date();
   map: GoogleMap;
   loading: any;
   locateDatas: Locate[];
@@ -76,40 +76,26 @@ export class Tab1Page implements OnInit {
     await this.fireAuth.auth.signInAnonymously().then( user => {
       this.user = user.user;
       this.userID = user.user.uid;
-      // try {
-        this.positionCollection = this.fireStore.collection(
-          `driverPostions/${this.userID}/track`,
-          ref => ref.orderBy('timestamp')
-        );
-      // } catch (error) {
-      //   alert('poitionCollection ERRoR : ' + error.message);
-      // }
       
-      // try {
-        this.userCollection = this.fireStore.collection(
-          `users`);
-      // } catch (error) {
-      //   alert('userCollection ERRoR : ' + error.message);
-      // }
+      this.positionCollection = this.fireStore.collection(
+        `driverPostions/${this.userID}/track`,
+        ref => ref.orderBy('timestamp')
+      );
       
-      // this.userCollection.
-      this.userCollection.doc(`${this.userID}`).set({
+      this.userCollection = this.fireStore.collection(`users`);
+      
+      this.userCollection.doc(`${this.userID}`).update({
         userID: this.userID,
         status: 'offline',
         st : true
       });
 
-      // try {
-        this.currentPositionCollection = this.fireStore.collection(
+      this.currentPositionCollection = this.fireStore.collection(
           `driverPostions/${this.userID}/current`,
           ref => ref.orderBy('timestamp')
-        );  
-      // } catch (error) {
-      //   alert('currentPoitionCollection ERRoR : ' + error.message);
-      // }
+      );  
       
-      // try {
-        this.fireStore.collection(`driverPostions/${this.userID}/current`).doc('currentLocate')
+      this.fireStore.collection(`driverPostions/${this.userID}/current`).doc('currentLocate')
       .set({
         lng: 0,
         lat: 0,
@@ -117,19 +103,7 @@ export class Tab1Page implements OnInit {
         driverID: this.userID,
         status: 'offline'
       });
-      // } catch (error) {
-      //   alert('Add offline friverPosition ERRoR : ' + error.message);
-      // }
-      
-      // this.currentPositionCollection.doc('currentLocate').set({
-      //   lng: 0,
-      //   lat: 0,
-      //   timestamp: 0,
-      //   driverID: this.userID,
-      //   status: 'offline'
-      // });
-      // alert('Signed in successfully');
-    } ).catch((err) => {
+    }).catch((err) => {
       alert('Unable to sign in & userCollection set : ' + err.message);
       // window.close();
     });
@@ -155,8 +129,6 @@ export class Tab1Page implements OnInit {
         // if (this.isTracking) {
         //   this.stopTracking();
         // }
-
-
       }
       // else { this.map.clear(); }
       for (const locate of rslt) {
@@ -185,16 +157,21 @@ export class Tab1Page implements OnInit {
     });
   }
 
+  async chkCleanValidation() {
+    
+  }
+
+  todayRefDate: string;
   async ngOnInit() {
+
+    this.todayRefDate = 'Date:' + this.date.getDate() + '-' + this.date.getMonth(); 
 
     this.loading = await this.loadingCtrl.create({
       message: 'Loading..',
       spinner: 'lines'
     });
-
     await this.anomLogin();
     await this.platform.ready();
-    await this.loading.present();
     await this.loadTrashIntoPoints();
     // await this.testLoadMap();
     
@@ -278,6 +255,9 @@ export class Tab1Page implements OnInit {
     // debug 
 
   }
+
+
+
 
   async stopTracking() {
     // this.trashLocationSub.unsubscribe();
@@ -379,7 +359,8 @@ export class Tab1Page implements OnInit {
           const lImg = marker.get('ImgValue');
           const lId = marker.get('IdValue');
           const lNum = marker.get('MarkValue');
-          this.popOverTest(lImg, lId, lNum, this.userID);
+          const pos = marker.getPosition();
+          this.popOverTest(lImg, lId, lNum, this.userID, pos.lat, pos.lng );
         });
       } catch (error) {
         alert('Error : ' + error.message);
@@ -388,20 +369,43 @@ export class Tab1Page implements OnInit {
 
   }
 
-  async popOverTest( img: string, id: string, num, user ) {
+   getDistance(lat1, lng1, lat2, lng2 ) {
+    let R = 6371000; // Calculated in meters
+    let dLat = this.degToRad( lat2 - lat1 );
+    let dLng = this.degToRad( lng2 - lng1 );
+    let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + 
+    Math.cos(this.degToRad(lat1)) * Math.cos(this.degToRad(lat2)) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt( 1 - a));
+    let d = R * c;
+    return d;
+  }
+
+  degToRad( deg ) {
+    return deg * ( Math.PI / 180 );
+  }
+
+  async popOverTest( img: string, id: string, num, user, poslat, poslng ) {
     if (this.isTracking){
-      this.loading.present();
-      const popover = await this.popoverCtrl.create({
-      component: LocationPopoverPage,
-      componentProps: {
-        location_img: img,
-        location_id : id,
-        locationMark_num: num,
-        userId: user
-        }
-      });
-      this.loading.dismiss();
-      popover.present();
+      let dist: number = this.getDistance(this.locationLat, this.locationLng, poslat, poslng );
+      if( dist <= 50 ){
+        alert("Distance is : " + dist);
+        this.loading.present();
+        const popover = await this.popoverCtrl.create({
+        component: LocationPopoverPage,
+        componentProps: {
+          location_img: img,
+          location_id : id,
+          locationMark_num: num,
+          userId: user
+          }
+        });
+        this.loading.dismiss();
+        popover.present();
+      } else {
+        alert("Warning : Required Distance 50 meters or less ");
+      }
+
     } else {
       alert("Please Enable Tracking");
     }

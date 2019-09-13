@@ -52,8 +52,8 @@ export class LocationPopoverPage implements OnInit {
           this.dataStatusNeg = false;
           this.imgs = data.imgsrc;
           this.trash = {
-            lat: data.glongitude,
-            lng: data.glatitude
+            lat: data.glatitude,
+            lng: data.glongitude
           };
           this.resportStatus = 'data positvie ';
         } else if (this.resportStatus == null) {
@@ -70,22 +70,19 @@ export class LocationPopoverPage implements OnInit {
   ionViewDidLeave() {
     this.connectionSub.unsubscribe();
     this.userAccSub.unsubscribe();
-    // window.location.reload();
   }
 
   async cleanTrash() {
     try {
-      await this.userCollection.add({
-        lat: this.trash.lat,
-        lng: this.trash.lng,
-        status: 'green',
-        timestamp: this.date.getTime()
-      });
-      // await this.userCollection.doc(`${currentDate}`).
-  
       await this.locateService.removeLocate(this.locationId)
-      .then( () => {
-        this.firebaseStorage.storage.refFromURL(this.locationImg).delete();
+      .then( async () => {
+        await this.userCollection.add({
+          lat: this.trash.lat,
+          lng: this.trash.lng,
+          status: 'green',
+          tm: this.date.toString()
+        });
+        await this.firebaseStorage.storage.refFromURL(this.locationImg).delete();
         this.closePopOver();
       })
       .catch( (err) => {
@@ -96,8 +93,6 @@ export class LocationPopoverPage implements OnInit {
       alert('Failed : '+ error );
       this.closePopOver();
     }
-    
-
   }
 
   closePopOver() {
