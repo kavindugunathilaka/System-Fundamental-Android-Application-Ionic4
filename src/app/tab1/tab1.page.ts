@@ -388,8 +388,7 @@ export class Tab1Page implements OnInit {
   async popOverTest( img: string, id: string, num, user, poslat, poslng ) {
     if (this.isTracking){
       let dist: number = this.getDistance(this.locationLat, this.locationLng, poslat, poslng );
-      if( dist <= 50 ){
-        alert("Distance is : " + dist);
+      if( dist <= 70 ){
         this.loading.present();
         const popover = await this.popoverCtrl.create({
         component: LocationPopoverPage,
