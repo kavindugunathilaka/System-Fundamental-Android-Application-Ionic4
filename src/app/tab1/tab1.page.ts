@@ -105,7 +105,7 @@ export class Tab1Page implements OnInit {
       });
     }).catch((err) => {
       alert('Unable to sign in & userCollection set : ' + err.message);
-      // window.close();
+      // window.close();git
     });
 
   }
