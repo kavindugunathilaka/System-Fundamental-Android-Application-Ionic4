@@ -77,10 +77,10 @@ export class Tab1Page implements OnInit {
       this.user = user.user;
       this.userID = user.user.uid;
       
-      this.positionCollection = this.fireStore.collection(
-        `driverPostions/${this.userID}/track`,
-        ref => ref.orderBy('timestamp')
-      );
+      // this.positionCollection = this.fireStore.collection(
+      //   `driverPostions/${this.userID}/track`,
+      //   ref => ref.orderBy('timestamp')
+      // );
       
       this.userCollection = this.fireStore.collection(`users`);
       
@@ -108,6 +108,38 @@ export class Tab1Page implements OnInit {
       // window.close();
     });
 
+  }
+
+  async chkDateUpdate() {
+    try {
+    let chkArr = [];
+    const userCollec: Observable<any> = this.userCollection.doc(this.userID).valueChanges();
+    let chkSub: Subscription = await userCollec.subscribe( (data) => {
+      chkArr = data.dt;
+      alert('array lenght is : '+ chkArr.length);
+    });
+    
+    await chkSub.unsubscribe();
+    await this.updateDateArr(chkArr);
+    } catch (error) {
+      alert('Err chking msg: ' + error.message);  
+    }
+    
+  }
+
+  updateDateArr(chkArr){
+    if ( chkArr.length > 0 ){
+      alert('array lenght is : ' + chkArr.length );
+      chkArr.reverse();
+      chkArr.pop();
+      chkArr.reverse();
+    }
+    if( !chkArr.includes(this.todayRefDate) ) {
+      chkArr.push(this.todayRefDate);
+      this.userCollection.doc(this.userID).update({
+        dt: chkArr
+      });
+    }
   }
 
   ionViewWillUnload() {
@@ -165,12 +197,13 @@ export class Tab1Page implements OnInit {
   async ngOnInit() {
 
     this.todayRefDate = 'Date:' + this.date.getDate() + '-' + this.date.getMonth(); 
-
     this.loading = await this.loadingCtrl.create({
       message: 'Loading..',
       spinner: 'lines'
     });
+    this.loading.present();
     await this.anomLogin();
+    await this.chkDateUpdate();
     await this.platform.ready();
     await this.loadTrashIntoPoints();
     // await this.testLoadMap();
@@ -330,6 +363,8 @@ export class Tab1Page implements OnInit {
   //   });
   // }
 
+
+
   loadMap() {
     
     const POINTS: BaseArrayClass<any> = new BaseArrayClass<any>(this.points);
@@ -369,7 +404,7 @@ export class Tab1Page implements OnInit {
 
   }
 
-   getDistance(lat1, lng1, lat2, lng2 ) {
+  getDistance(lat1, lng1, lat2, lng2 ) {
     let R = 6371000; // Calculated in meters
     let dLat = this.degToRad( lat2 - lat1 );
     let dLng = this.degToRad( lng2 - lng1 );
