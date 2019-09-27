@@ -8,24 +8,16 @@
       <ion-icon name="people" size="large" ></ion-icon>
       <ion-label color="primary" > {{ userID }} </ion-label>
     </ion-chip>
-    <!-- <ion-card padding color="light">
-      <ion-card-subtitle>
-          <ion-icon  name="share" ></ion-icon>&nbsp;
-        <b>Geo Center : {{ mapCnLat }} </b>
-      </ion-card-subtitle>
-    </ion-card> -->
+
   </ion-fab>
-    <!-- Refresher component -->
+
     <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
       <ion-refresher-content color="primary"
       refreshingSpinner="lines"
       ></ion-refresher-content>
     </ion-refresher>
-    <!-- size="large" -->
-    <!-- Division to report no data -->
     <div *ngIf="noDataRecord">
       <ion-card padding color="danger">
-          <!-- &nbsp;&nbsp;&nbsp; -->
           <ion-icon size="large" name="warning" style="margin-left: 45%;" ></ion-icon>
           <br>
       <ion-card-subtitle style="margin-left: 15%;">
@@ -34,8 +26,6 @@
       </ion-card>
     </div>
     
-    <!--  Google maps -->
-    <!-- *ngIf="!noDataRecord" -->
     <div id='map_canvas' >
 
     </div>

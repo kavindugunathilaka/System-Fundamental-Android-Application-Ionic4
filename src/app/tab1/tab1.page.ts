@@ -146,11 +146,7 @@ export class Tab1Page implements OnInit {
     this.updateStatus(false);
   }
 
-  ionViewDidLeave() {
-    // window.location.reload();
-    // this.trashLocationSub.unsubscribe();
-    // this.updateStatus(false);
-  }
+  
 
   mapCnLat: any;
 
@@ -158,11 +154,7 @@ export class Tab1Page implements OnInit {
     this.trashLocationSub = await this.locateService.getLocates().subscribe( rslt => {
       if (rslt.length <= 0 ) {
         this.noDataRecord = true;
-        // if (this.isTracking) {
-        //   this.stopTracking();
-        // }
       }
-      // else { this.map.clear(); }
       for (const locate of rslt) {
         const latValue = locate.glatitude;
         const lngValue = locate.glongitude;
@@ -187,10 +179,6 @@ export class Tab1Page implements OnInit {
       this.mapCnLat = this.map.getCameraPosition().target;
       this.loading.dismiss();
     });
-  }
-
-  async chkCleanValidation() {
-    
   }
 
   todayRefDate: string;
@@ -255,19 +243,15 @@ export class Tab1Page implements OnInit {
     }).subscribe( (data) => {
       if (this.locationLng != data.coords.longitude || this.locationLat != data.coords.latitude ) {
         if (this.markerArray.length >= 1 ) {
-          // this.map.clear();
-          // this.markerArrayStatus = 'Greater than One >>> Positive : ' + this.markerArray.length;
           const prevMarker: Marker = this.markerArray.pop();
           prevMarker.remove();
         } else {
-          // this.markerArrayStatus = 'Less than One >>> Negative : ' + this.markerArray.length;
         }
 
         this.locationLat = data.coords.latitude;
         this.locationLng = data.coords.longitude;
         this.locationTimeStamp = data.timestamp;
         this.updateCurrentPosition(this.locationLat, this.locationLng, this.locationTimeStamp);
-        // this.addLocation(this.locationLat, this.locationLng, this.locationTimeStamp);
         this.mark = this.map.addMarkerSync({
           position : {
           lat: this.locationLat,
@@ -285,83 +269,17 @@ export class Tab1Page implements OnInit {
       }
     });
 
-    // debug 
-
   }
 
 
 
 
   async stopTracking() {
-    // this.trashLocationSub.unsubscribe();
     this.mark.remove();
     this.isTracking = false;
     await this.updateStatus(false);
     await this.locationSubscription.unsubscribe();
   }
-
-
-
-  // async testloadTrash() {
-  //   this.locateTrash = true;
-  //   this.trashLocationSub = await this.locateService.getLocates().subscribe( rslt => {
-  //     if (rslt.length <= 0 ) { this.noDataRecord = true; }
-  //     // else { this.map.clear(); }
-  //     for (const locate of rslt) {
-  //       const latValue = locate.glatitude;
-  //       const lngValue = locate.glongitude;
-  //       const descValue = locate.description;
-  //       const imgs = locate.imgsrc;
-  //       const locatId = locate.id;
-  //       let num = 0;
-  //       this.points.push(
-  //         {
-  //             position: {lat: latValue, lng: lngValue},
-  //             // title: locatId,
-  //             title: {image: imgs, id: locatId } ,
-  //             ImgValue: imgs,
-  //             iconData: 'blue',
-  //             IdValue: locatId,
-  //             MarkValue: num++
-  //         }
-  //       );
-  //     }
-
-  //     const POINTS: BaseArrayClass<any> = new BaseArrayClass<any>(this.points);
-
-  //     const bounds: ILatLng[] = POINTS.map((data: any, idx: number) => {
-  //       console.log(data);
-  //       return data.position;
-  //     });
-
-  //     // this.map = GoogleMaps.create('map_canvas', {
-  //     //   camera: {
-  //     //     target: bounds,
-  //     //     zoom: 10
-  //     //   }
-  //     // });
-
-  //     // this.loading.dismiss();
-
-  //     POINTS.forEach((data: any) => {
-  //       data.disableAutoPan = true;
-  //       const marker: Marker = this.map.addMarkerSync(data);
-  //       this.trashPositionArray.push(marker);
-  //       try {
-  //         marker.on(GoogleMapsEvent.MARKER_CLICK).subscribe( () => {
-  //           this.loading.present();
-  //           const lImg = marker.get('ImgValue');
-  //           const lId = marker.get('IdValue');
-  //           const lNum = marker.get('MarkValue');
-  //           this.popOverTest(lImg, lId, lNum);
-  //         });
-  //       } catch (error) {
-  //         alert('Error : ' + error.message);
-  //       }
-
-  //     });
-  //   });
-  // }
 
 
 
